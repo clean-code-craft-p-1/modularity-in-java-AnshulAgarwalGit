@@ -16,46 +16,46 @@ public class TemperatureStatisticsTest {
     @Test
     public void calculatesMinMaxAverage() {
         List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0),
-                new TemperatureReading("12:30:00", 25.0),
-                new TemperatureReading("13:00:00", 30.0)
+                new TemperatureReading("12:00:00", 98.0),
+                new TemperatureReading("12:30:00", 99.0),
+                new TemperatureReading("13:00:00", 100.0)
         );
 
         TemperatureStatistics stats = new TemperatureStatistics(readings);
 
-        assertEquals(20.0, stats.getMinTemp());
-        assertEquals(30.0, stats.getMaxTemp());
-        assertEquals(25.0, stats.getAvgTemp());
+        assertEquals(98.0, stats.getMinTemp());
+        assertEquals(100.0, stats.getMaxTemp());
+        assertEquals(99.0, stats.getAvgTemp());
         assertEquals(3, stats.getCount());
     }
 
     @Test
     public void singleReadingStatistics() {
         List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 22.5)
+                new TemperatureReading("12:00:00", 98.6)
         );
 
         TemperatureStatistics stats = new TemperatureStatistics(readings);
 
-        assertEquals(22.5, stats.getMinTemp());
-        assertEquals(22.5, stats.getMaxTemp());
-        assertEquals(22.5, stats.getAvgTemp());
+        assertEquals(98.6, stats.getMinTemp());
+        assertEquals(98.6, stats.getMaxTemp());
+        assertEquals(98.6, stats.getAvgTemp());
         assertEquals(1, stats.getCount());
     }
 
     @Test
-    public void negativeTemperatures() {
+    public void variedHumanTemperatures() {
         List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", -10.0),
-                new TemperatureReading("12:30:00", -5.0),
-                new TemperatureReading("13:00:00", 0.0)
+                new TemperatureReading("12:00:00", 95.2),
+                new TemperatureReading("12:30:00", 98.4),
+                new TemperatureReading("13:00:00", 101.6)
         );
 
         TemperatureStatistics stats = new TemperatureStatistics(readings);
 
-        assertEquals(-10.0, stats.getMinTemp());
-        assertEquals(0.0, stats.getMaxTemp());
-        assertEquals(-5.0, stats.getAvgTemp());
+        assertEquals(95.2, stats.getMinTemp());
+        assertEquals(101.6, stats.getMaxTemp());
+        assertEquals(98.4, stats.getAvgTemp(), 0.0001);
     }
 
     @Test

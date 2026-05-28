@@ -5,12 +5,12 @@ import temperature.domain.model.TemperatureReading;
 
 /**
  * Validates parsed TemperatureReading values against business rules.
- * Encapsulates validation logic for timestamp format and temperature range.
+ * Encapsulates validation logic for timestamp format and human body temperature range.
  */
 public class TemperatureValidator implements Validator<TemperatureReading> {
 
-    private static final int MIN_TEMP = -100;
-    private static final int MAX_TEMP = 200;
+    private static final double MIN_TEMP_F = 95.0;
+    private static final double MAX_TEMP_F = 107.0;
 
     /**
      * Validates that the timestamp has exactly 3 colon-separated parts.
@@ -26,11 +26,11 @@ public class TemperatureValidator implements Validator<TemperatureReading> {
     /**
      * Validates that the temperature value is within acceptable range.
      *
-     * @param celsius the temperature value to validate
-     * @return true if temperature is within [-100, 200]
+     * @param fahrenheit the temperature value to validate
+     * @return true if temperature is within [95.0, 107.0]
      */
-    public static boolean isValidTemperatureRange(double celsius) {
-        return celsius >= MIN_TEMP && celsius <= MAX_TEMP;
+    public static boolean isValidTemperatureRange(double fahrenheit) {
+        return fahrenheit >= MIN_TEMP_F && fahrenheit <= MAX_TEMP_F;
     }
 
     /**
@@ -46,7 +46,7 @@ public class TemperatureValidator implements Validator<TemperatureReading> {
             return ValidationResult.invalid("Invalid timestamp format");
         }
 
-        if (!isValidTemperatureRange(reading.getCelsius())) {
+        if (!isValidTemperatureRange(reading.getFahrenheit())) {
             return ValidationResult.invalid("Temperature out of range");
         }
 

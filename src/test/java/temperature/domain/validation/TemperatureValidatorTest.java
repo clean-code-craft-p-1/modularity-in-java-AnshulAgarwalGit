@@ -29,27 +29,27 @@ public class TemperatureValidatorTest {
 
     @Test
     public void validTemperatureRange() {
-        assertTrue(TemperatureValidator.isValidTemperatureRange(20.0));
-        assertTrue(TemperatureValidator.isValidTemperatureRange(-100.0));
-        assertTrue(TemperatureValidator.isValidTemperatureRange(200.0));
-        assertTrue(TemperatureValidator.isValidTemperatureRange(0.0));
+        assertTrue(TemperatureValidator.isValidTemperatureRange(98.6));
+        assertTrue(TemperatureValidator.isValidTemperatureRange(95.0));
+        assertTrue(TemperatureValidator.isValidTemperatureRange(107.0));
+        assertTrue(TemperatureValidator.isValidTemperatureRange(100.4));
     }
 
     @Test
     public void invalidTemperatureTooLow() {
-        assertFalse(TemperatureValidator.isValidTemperatureRange(-100.1));
-        assertFalse(TemperatureValidator.isValidTemperatureRange(-200.0));
+        assertFalse(TemperatureValidator.isValidTemperatureRange(94.9));
+        assertFalse(TemperatureValidator.isValidTemperatureRange(90.0));
     }
 
     @Test
     public void invalidTemperatureTooHigh() {
-        assertFalse(TemperatureValidator.isValidTemperatureRange(200.1));
-        assertFalse(TemperatureValidator.isValidTemperatureRange(300.0));
+        assertFalse(TemperatureValidator.isValidTemperatureRange(107.1));
+        assertFalse(TemperatureValidator.isValidTemperatureRange(110.0));
     }
 
     @Test
     public void validateSucceedsForValidReading() {
-        TemperatureReading reading = new TemperatureReading("12:30:45", 25.0);
+        TemperatureReading reading = new TemperatureReading("12:30:45", 98.6);
         TemperatureValidator.ValidationResult result = validator.validate(reading);
         assertTrue(result.isValid());
         assertNull(result.getErrorMessage());
@@ -57,7 +57,7 @@ public class TemperatureValidatorTest {
 
     @Test
     public void validateFailsForInvalidTimestamp() {
-        TemperatureReading reading = new TemperatureReading("12:30", 25.0);
+        TemperatureReading reading = new TemperatureReading("12:30", 98.6);
         TemperatureValidator.ValidationResult result = validator.validate(reading);
         assertFalse(result.isValid());
         assertNotNull(result.getErrorMessage());
@@ -65,7 +65,7 @@ public class TemperatureValidatorTest {
 
     @Test
     public void validateFailsForOutOfRangeTemperature() {
-        TemperatureReading reading = new TemperatureReading("12:30:45", 250.0);
+        TemperatureReading reading = new TemperatureReading("12:30:45", 109.0);
         TemperatureValidator.ValidationResult result = validator.validate(reading);
         assertFalse(result.isValid());
         assertNotNull(result.getErrorMessage());

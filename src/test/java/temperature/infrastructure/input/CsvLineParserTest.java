@@ -16,14 +16,14 @@ public class CsvLineParserTest {
     public void parsesValidCsvLine() throws ParseException {
         TemperatureReading reading = parser.parse("12:30:45,23.5");
         assertEquals("12:30:45", reading.getTimestamp());
-        assertEquals(23.5, reading.getCelsius());
+        assertEquals(23.5, reading.getFahrenheit());
     }
 
     @Test
     public void parsesWithWhitespace() throws ParseException {
         TemperatureReading reading = parser.parse("  12:30:45  ,  23.5  ");
         assertEquals("12:30:45", reading.getTimestamp());
-        assertEquals(23.5, reading.getCelsius());
+        assertEquals(23.5, reading.getFahrenheit());
     }
 
     @Test
@@ -44,12 +44,12 @@ public class CsvLineParserTest {
     @Test
     public void parsesNegativeTemperature() throws ParseException {
         TemperatureReading reading = parser.parse("12:30:45,-15.3");
-        assertEquals(-15.3, reading.getCelsius());
+        assertEquals(-15.3, reading.getFahrenheit());
     }
 
     @Test
     public void parsesLargeTemperature() throws ParseException {
         TemperatureReading reading = parser.parse("12:30:45,250.0");
-        assertEquals(250.0, reading.getCelsius());
+        assertEquals(250.0, reading.getFahrenheit());
     }
 }

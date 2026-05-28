@@ -19,12 +19,12 @@ class TemperatureBatchProcessorBadLinesTest {
     void processBatchIncludesInvalidLinesInSummary() throws IOException {
         Path inputFile = tempDir.resolve("test_temps_with_errors.csv");
         List<String> testData = List.of(
-                "09:15:30,23.5",
+            "09:15:30,98.6",
                 "missing-comma-entry",
-                "09:16,24.1",
+            "09:16,99.1",
                 "09:16:30,not-a-number",
-                "09:17:00,250.0",
-                "09:18:00,24.7");
+            "09:17:00,109.5",
+            "09:18:00,99.0");
 
         Files.write(inputFile, testData);
 
@@ -40,8 +40,8 @@ class TemperatureBatchProcessorBadLinesTest {
                 () -> assertTrue(content.contains("Errors: 4"), "Expected error count in summary"),
                 () -> assertTrue(content.contains("Invalid lines:"), "Expected invalid lines section in summary"),
                 () -> assertTrue(content.contains("  Line 2: missing-comma-entry"), "Expected malformed CSV line to be reported"),
-                () -> assertTrue(content.contains("  Line 3: 09:16,24.1"), "Expected invalid timestamp line to be reported"),
+                () -> assertTrue(content.contains("  Line 3: 09:16,99.1"), "Expected invalid timestamp line to be reported"),
                 () -> assertTrue(content.contains("  Line 4: 09:16:30,not-a-number"), "Expected non-numeric temperature line to be reported"),
-                () -> assertTrue(content.contains("  Line 5: 09:17:00,250.0"), "Expected out-of-range temperature line to be reported"));
+                () -> assertTrue(content.contains("  Line 5: 09:17:00,109.5"), "Expected out-of-range temperature line to be reported"));
     }
 }

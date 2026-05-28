@@ -25,10 +25,10 @@ public class TemperatureStatistics {
         }
 
         this.count = readings.size();
-        this.maxTemp = Collections.max(readings.stream().map(TemperatureReading::getCelsius).toList());
-        this.minTemp = Collections.min(readings.stream().map(TemperatureReading::getCelsius).toList());
+        this.maxTemp = Collections.max(readings.stream().map(TemperatureReading::getFahrenheit).toList());
+        this.minTemp = Collections.min(readings.stream().map(TemperatureReading::getFahrenheit).toList());
         this.avgTemp = readings.stream()
-                .mapToDouble(TemperatureReading::getCelsius)
+            .mapToDouble(TemperatureReading::getFahrenheit)
                 .average()
                 .orElse(0.0);
     }
