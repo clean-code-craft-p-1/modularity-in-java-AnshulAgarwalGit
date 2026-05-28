@@ -1,13 +1,7 @@
 package temperature.infrastructure.output;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import temperature.domain.model.SummaryReport;
-import temperature.domain.model.TemperatureReading;
-import temperature.domain.model.TemperatureStatistics;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,12 +14,7 @@ public class FileSummaryWriterTest {
 
     @Test
     public void formatsWithValidData() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0),
-                new TemperatureReading("12:30:00", 30.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        SummaryReport report = new SummaryReport(2, 2, 0, stats, Collections.emptyList());
+    SummaryReport report = SummaryWriterTestFixtures.twoValidReadingsReport();
 
         String output = writer.format(report, "test.csv");
 
@@ -42,11 +31,7 @@ public class FileSummaryWriterTest {
 
     @Test
     public void includesFileAnalyzedLine() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        SummaryReport report = new SummaryReport(1, 1, 0, stats, Collections.emptyList());
+        SummaryReport report = SummaryWriterTestFixtures.singleValidReadingReport();
 
         String output = writer.format(report, "myfile.csv");
 
@@ -55,12 +40,7 @@ public class FileSummaryWriterTest {
 
     @Test
     public void includesBlankLineBeforeInvalidLines() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        List<String> badLines = Arrays.asList("  Line 2: invalid,data");
-        SummaryReport report = new SummaryReport(2, 1, 1, stats, badLines);
+        SummaryReport report = SummaryWriterTestFixtures.oneInvalidLineReport();
 
         String output = writer.format(report, "test.csv");
 
@@ -70,11 +50,7 @@ public class FileSummaryWriterTest {
 
     @Test
     public void usesShortSeparatorInFile() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        SummaryReport report = new SummaryReport(1, 1, 0, stats, Collections.emptyList());
+        SummaryReport report = SummaryWriterTestFixtures.singleValidReadingReport();
 
         String output = writer.format(report, "test.csv");
 
@@ -83,11 +59,7 @@ public class FileSummaryWriterTest {
 
     @Test
     public void noBlankLineWhenNoInvalidLines() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        SummaryReport report = new SummaryReport(1, 1, 0, stats, Collections.emptyList());
+        SummaryReport report = SummaryWriterTestFixtures.singleValidReadingReport();
 
         String output = writer.format(report, "test.csv");
 

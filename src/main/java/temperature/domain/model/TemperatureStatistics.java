@@ -32,7 +32,6 @@ public class TemperatureStatistics {
                 .average()
                 .orElse(0.0);
     }
-
     public double getMinTemp() {
         return minTemp;
     }
