@@ -1,0 +1,14 @@
+{
+  "java.jdt.ls.java.home": "C:\\Workspace\\PRS\\Java Training\\openlogic-openjdk-25",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-25",
+      "path": "C:\\Workspace\\PRS\\Java Training\\openlogic-openjdk-25",
+      "default": true
+    }
+  ],
+  "terminal.integrated.env.windows": {
+    "JAVA_HOME": "C:\\Workspace\\PRS\\Java Training\\openlogic-openjdk-25",
+    "PATH": "C:\\Workspace\\PRS\\Java Training\\openlogic-openjdk-25\\bin;${env:PATH}"
+  }
+}
