@@ -8,6 +8,7 @@ public class Main {
             return;
         }
 
-        TemperatureBatchProcessor.processBatch(args[0]);
+        TemperatureBatchProcessor processor = new TemperatureBatchProcessor();
+        processor.process(args[0]);
     }
 }

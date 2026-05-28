@@ -3,65 +3,70 @@ package temperature;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
+/**
+ * Orchestrates temperature data batch processing.
+ * Delegates parsing, validation, statistics, and reporting to focused collaborators.
+ * Remains the stable public API while internally modular.
+ */
 public class TemperatureBatchProcessor {
 
-    private static void writeSummary(
-            PrintWriter writer,
-            String filename,
-            int totalReadings,
-            int validReadings,
-            int errors,
-            double maxTemp,
-            double minTemp,
-            double avgTemp,
-            List<String> badLines,
-            boolean includeFileAnalyzed,
-            String headerSeparator,
-            boolean blankLineBeforeInvalidLines) {
-        writer.println(headerSeparator);
-        writer.println("Temperature Analysis Summary");
-        writer.println(headerSeparator);
-        if (includeFileAnalyzed) {
-            writer.println("File analyzed: " + filename);
-        }
-        writer.println("Total readings: " + totalReadings);
-        writer.println("Valid readings: " + validReadings);
-        writer.println("Errors: " + errors);
-        writer.println("------------------------------------------------------------");
-        writer.printf("Max temperature: %.2f%n", maxTemp);
-        writer.printf("Min temperature: %.2f%n", minTemp);
-        writer.printf("Average temperature: %.2f%n", avgTemp);
-        writer.println("------------------------------------------------------------");
+    private static final TemperatureBatchProcessor DEFAULT_PROCESSOR = new TemperatureBatchProcessor();
 
-        if (!badLines.isEmpty()) {
-            if (blankLineBeforeInvalidLines) {
-                writer.println();
-            }
-            writer.println("Invalid lines:");
-            for (String badLine : badLines) {
-                writer.println(badLine);
-            }
-        }
+    private final TemperatureLineReader fileReader;
+    private final LineParser<TemperatureReading> csvParser;
+    private final Validator<TemperatureReading> validator;
+    private final ReportWriter consoleWriter;
+    private final ReportWriter fileWriter;
+
+    public TemperatureBatchProcessor() {
+        this(
+                new TemperatureFileReader(),
+                new CsvLineParser(),
+                new TemperatureValidator(),
+                new ConsoleSummaryWriter(),
+                new FileSummaryWriter()
+        );
     }
 
-    public static void processBatch(String filename) {
-        List<String> lines;
+    public TemperatureBatchProcessor(
+            TemperatureLineReader fileReader,
+            LineParser<TemperatureReading> csvParser,
+            Validator<TemperatureReading> validator,
+            ReportWriter consoleWriter,
+            ReportWriter fileWriter) {
+        this.fileReader = fileReader;
+        this.csvParser = csvParser;
+        this.validator = validator;
+        this.consoleWriter = consoleWriter;
+        this.fileWriter = fileWriter;
+    }
 
+    /**
+     * Processes a batch of temperature readings from a CSV file.
+     * Orchestrates parsing, validation, statistics, and report generation.
+     * Outputs to console and writes summary to file.
+     *
+     * @param filename path to the input CSV file
+     */
+    public static void processBatch(String filename) {
+        DEFAULT_PROCESSOR.process(filename);
+    }
+
+    public void process(String filename) {
+        // Read file lines
+        List<String> lines;
         try {
-            lines = Files.readAllLines(Paths.get(filename));
+            lines = fileReader.readLines(filename);
         } catch (IOException e) {
             System.out.println("Error: File not found.");
             return;
         }
 
-        List<Double> temps = new ArrayList<>();
-        int errors = 0;
+        // Parse and validate each line
+        List<TemperatureReading> validReadings = new ArrayList<>();
         List<String> badLines = new ArrayList<>();
 
         for (int i = 0; i < lines.size(); i++) {
@@ -70,79 +75,52 @@ public class TemperatureBatchProcessor {
                 continue;
             }
 
-            String[] parts = line.split(",");
-            if (parts.length != 2) {
-                errors++;
-                badLines.add("  Line " + (i + 1) + ": " + line);
-                continue;
-            }
-
-            String timestamp = parts[0].strip();
-            String value = parts[1].strip();
-
-            if (timestamp.split(":").length != 3) {
-                errors++;
-                badLines.add("  Line " + (i + 1) + ": " + line);
-                continue;
-            }
-
-            double temp;
+            // Try to parse the line
+            TemperatureReading reading;
             try {
-                temp = Double.parseDouble(value);
-            } catch (NumberFormatException e) {
-                errors++;
+                reading = csvParser.parse(line);
+            } catch (ParseException e) {
                 badLines.add("  Line " + (i + 1) + ": " + line);
                 continue;
             }
 
-            if (temp < -100 || temp > 200) {
-                errors++;
+            // Try to validate the parsed reading
+            TemperatureValidator.ValidationResult validation = validator.validate(reading);
+            if (!validation.isValid()) {
                 badLines.add("  Line " + (i + 1) + ": " + line);
                 continue;
             }
 
-            temps.add(temp);
+            validReadings.add(reading);
         }
 
-        if (temps.isEmpty()) {
+        // Check if we have any valid data
+        if (validReadings.isEmpty()) {
             System.out.println("No valid temperature data found.");
             return;
         }
 
-        double maxTemp = Collections.max(temps);
-        double minTemp = Collections.min(temps);
-        double avgTemp = temps.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        // Compute statistics
+        TemperatureStatistics statistics = new TemperatureStatistics(validReadings);
 
-        PrintWriter consoleWriter = new PrintWriter(System.out, true);
-        writeSummary(
-                consoleWriter,
-                filename,
+        // Build summary report
+        SummaryReport report = new SummaryReport(
                 lines.size(),
-                temps.size(),
-                errors,
-                maxTemp,
-                minTemp,
-                avgTemp,
-                badLines,
-                false,
-                "============================================================",
-                false);
+                validReadings.size(),
+                badLines.size(),
+                statistics,
+                badLines
+        );
 
+        // Output to console
+        String consoleOutput = consoleWriter.format(report, filename);
+        System.out.print(consoleOutput);
+
+        // Output to file
         String outName = filename + "_summary.txt";
         try (PrintWriter out = new PrintWriter(new FileWriter(outName))) {
-            writeSummary(
-                    out,
-                    filename,
-                    lines.size(),
-                    temps.size(),
-                    errors,
-                    maxTemp,
-                    minTemp,
-                    avgTemp,
-                    badLines,
-                    true,
-                    "==================================================",
-                    true);
+            String fileOutput = fileWriter.format(report, filename);
+            out.print(fileOutput);
             System.out.println("Report saved to " + outName);
         } catch (IOException e) {
             System.out.println("Error saving file: " + e.getMessage());
