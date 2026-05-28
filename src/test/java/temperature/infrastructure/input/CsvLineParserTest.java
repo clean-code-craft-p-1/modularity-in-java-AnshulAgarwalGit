@@ -1,6 +1,7 @@
-package temperature;
+package temperature.infrastructure.input;
 
 import org.junit.jupiter.api.Test;
+import temperature.domain.model.TemperatureReading;
 
 import static org.junit.jupiter.api.Assertions.*;
 

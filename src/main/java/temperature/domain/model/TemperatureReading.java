@@ -1,4 +1,4 @@
-package temperature;
+package temperature.domain.model;
 
 /**
  * Immutable model representing a successfully parsed temperature reading.

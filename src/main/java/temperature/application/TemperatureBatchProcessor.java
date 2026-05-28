@@ -1,10 +1,23 @@
-package temperature;
+package temperature.application;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
+import temperature.application.ports.LineParser;
+import temperature.application.ports.ReportWriter;
+import temperature.application.ports.TemperatureLineReader;
+import temperature.application.ports.Validator;
+import temperature.domain.model.SummaryReport;
+import temperature.domain.model.TemperatureReading;
+import temperature.domain.model.TemperatureStatistics;
+import temperature.domain.validation.TemperatureValidator;
+import temperature.infrastructure.input.CsvLineParser;
+import temperature.infrastructure.input.ParseException;
+import temperature.infrastructure.input.TemperatureFileReader;
+import temperature.infrastructure.output.ConsoleSummaryWriter;
+import temperature.infrastructure.output.FileSummaryWriter;
 
 /**
  * Orchestrates temperature data batch processing.

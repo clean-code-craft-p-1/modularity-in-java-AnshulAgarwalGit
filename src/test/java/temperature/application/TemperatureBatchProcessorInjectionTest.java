@@ -1,4 +1,4 @@
-package temperature;
+package temperature.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,6 +10,14 @@ import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import temperature.application.ports.LineParser;
+import temperature.application.ports.ReportWriter;
+import temperature.application.ports.TemperatureLineReader;
+import temperature.application.ports.Validator;
+import temperature.domain.model.SummaryReport;
+import temperature.domain.model.TemperatureReading;
+import temperature.domain.validation.TemperatureValidator;
+import temperature.infrastructure.input.ParseException;
 
 class TemperatureBatchProcessorInjectionTest {
 

@@ -1,4 +1,6 @@
-package temperature;
+package temperature.application.ports;
+
+import temperature.domain.model.SummaryReport;
 
 /**
  * Abstraction for formatting summary reports for a target output.

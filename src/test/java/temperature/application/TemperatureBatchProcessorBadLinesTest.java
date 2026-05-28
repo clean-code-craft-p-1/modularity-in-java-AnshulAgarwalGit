@@ -1,4 +1,4 @@
-package temperature;
+package temperature.application;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertTrue;

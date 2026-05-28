@@ -1,4 +1,7 @@
-package temperature;
+package temperature.infrastructure.input;
+
+import temperature.application.ports.LineParser;
+import temperature.domain.model.TemperatureReading;
 
 /**
  * Parses a CSV line into a TemperatureReading.

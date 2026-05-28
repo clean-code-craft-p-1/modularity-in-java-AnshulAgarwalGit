@@ -1,4 +1,6 @@
-package temperature;
+package temperature.application.ports;
+
+import temperature.infrastructure.input.ParseException;
 
 /**
  * Abstraction for parsing a single input line into a domain object.

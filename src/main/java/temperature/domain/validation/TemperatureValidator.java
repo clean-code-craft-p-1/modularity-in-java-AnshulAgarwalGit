@@ -1,4 +1,7 @@
-package temperature;
+package temperature.domain.validation;
+
+import temperature.application.ports.Validator;
+import temperature.domain.model.TemperatureReading;
 
 /**
  * Validates parsed TemperatureReading values against business rules.

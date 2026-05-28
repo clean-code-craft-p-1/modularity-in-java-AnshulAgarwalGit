@@ -1,4 +1,4 @@
-package temperature;
+package temperature.domain.model;
 
 import org.junit.jupiter.api.Test;
 

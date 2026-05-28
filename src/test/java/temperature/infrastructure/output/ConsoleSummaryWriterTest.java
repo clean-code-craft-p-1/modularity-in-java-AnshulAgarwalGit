@@ -1,19 +1,22 @@
-package temperature;
+package temperature.infrastructure.output;
 
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import temperature.domain.model.SummaryReport;
+import temperature.domain.model.TemperatureReading;
+import temperature.domain.model.TemperatureStatistics;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Unit tests for FileSummaryWriter.
- * Validates file output format and content.
+ * Unit tests for ConsoleSummaryWriter.
+ * Validates console output format and content.
  */
-public class FileSummaryWriterTest {
-    private final FileSummaryWriter writer = new FileSummaryWriter();
+public class ConsoleSummaryWriterTest {
+    private final ConsoleSummaryWriter writer = new ConsoleSummaryWriter();
 
     @Test
     public void formatsWithValidData() {
@@ -26,9 +29,8 @@ public class FileSummaryWriterTest {
 
         String output = writer.format(report, "test.csv");
 
-        assertTrue(output.contains("=================================================="));
+        assertTrue(output.contains("============================================================"));
         assertTrue(output.contains("Temperature Analysis Summary"));
-        assertTrue(output.contains("File analyzed: test.csv"));
         assertTrue(output.contains("Total readings: 2"));
         assertTrue(output.contains("Valid readings: 2"));
         assertTrue(output.contains("Errors: 0"));
@@ -38,20 +40,7 @@ public class FileSummaryWriterTest {
     }
 
     @Test
-    public void includesFileAnalyzedLine() {
-        List<TemperatureReading> readings = Arrays.asList(
-                new TemperatureReading("12:00:00", 20.0)
-        );
-        TemperatureStatistics stats = new TemperatureStatistics(readings);
-        SummaryReport report = new SummaryReport(1, 1, 0, stats, Collections.emptyList());
-
-        String output = writer.format(report, "myfile.csv");
-
-        assertTrue(output.contains("File analyzed: myfile.csv"));
-    }
-
-    @Test
-    public void includesBlankLineBeforeInvalidLines() {
+    public void includesInvalidLines() {
         List<TemperatureReading> readings = Arrays.asList(
                 new TemperatureReading("12:00:00", 20.0)
         );
@@ -61,12 +50,12 @@ public class FileSummaryWriterTest {
 
         String output = writer.format(report, "test.csv");
 
-        // Check that there's a blank line before "Invalid lines:"
-        assertTrue(output.contains("\n\nInvalid lines:"));
+        assertTrue(output.contains("Invalid lines:"));
+        assertTrue(output.contains("  Line 2: invalid,data"));
     }
 
     @Test
-    public void usesShortSeparatorInFile() {
+    public void noFileAnalyzedLineInConsole() {
         List<TemperatureReading> readings = Arrays.asList(
                 new TemperatureReading("12:00:00", 20.0)
         );
@@ -75,11 +64,11 @@ public class FileSummaryWriterTest {
 
         String output = writer.format(report, "test.csv");
 
-        assertTrue(output.contains("=================================================="));
+        assertFalse(output.contains("File analyzed:"));
     }
 
     @Test
-    public void noBlankLineWhenNoInvalidLines() {
+    public void usesLongerSeparatorInConsole() {
         List<TemperatureReading> readings = Arrays.asList(
                 new TemperatureReading("12:00:00", 20.0)
         );
@@ -88,6 +77,7 @@ public class FileSummaryWriterTest {
 
         String output = writer.format(report, "test.csv");
 
-        assertFalse(output.contains("\n\nInvalid lines:"));
+        assertTrue(output.contains("============================================================"));
+        // Verify the 60-char separator is used for console output
     }
 }

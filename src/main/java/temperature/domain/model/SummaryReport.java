@@ -1,4 +1,4 @@
-package temperature;
+package temperature.domain.model;
 
 import java.util.List;
 

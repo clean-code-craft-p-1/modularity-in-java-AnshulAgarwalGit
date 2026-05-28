@@ -1,4 +1,4 @@
-package temperature;
+package temperature.application.ports;
 
 import java.io.IOException;
 import java.util.List;

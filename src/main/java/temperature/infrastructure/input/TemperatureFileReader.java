@@ -1,10 +1,10 @@
-package temperature;
+package temperature.infrastructure.input;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import temperature.application.ports.TemperatureLineReader;
 
 /**
  * Wraps file I/O operations for reading temperature data.

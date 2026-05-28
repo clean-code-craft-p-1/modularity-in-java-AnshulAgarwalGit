@@ -1,4 +1,4 @@
-package temperature;
+package temperature.infrastructure.input;
 
 /**
  * Exception thrown when CSV parsing fails.
