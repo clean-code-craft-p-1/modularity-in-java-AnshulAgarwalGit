@@ -69,74 +69,102 @@ public class TemperatureBatchProcessor {
     }
 
     public void process(String filename) {
-        // Read file lines
-        List<String> lines;
-        try {
-            lines = fileReader.readLines(filename);
-        } catch (IOException e) {
-            System.out.println("Error: File not found.");
+        List<String> lines = readInputLines(filename);
+        if (lines == null) {
             return;
         }
 
-        // Parse and validate each line
-        List<TemperatureReading> validReadings = new ArrayList<>();
-        List<String> badLines = new ArrayList<>();
-
-        for (int i = 0; i < lines.size(); i++) {
-            String line = lines.get(i).trim();
-            if (line.isEmpty()) {
-                continue;
-            }
-
-            // Try to parse the line
-            TemperatureReading reading;
-            try {
-                reading = csvParser.parse(line);
-            } catch (ParseException e) {
-                badLines.add("  Line " + (i + 1) + ": " + line);
-                continue;
-            }
-
-            // Try to validate the parsed reading
-            TemperatureValidator.ValidationResult validation = validator.validate(reading);
-            if (!validation.isValid()) {
-                badLines.add("  Line " + (i + 1) + ": " + line);
-                continue;
-            }
-
-            validReadings.add(reading);
-        }
-
-        // Check if we have any valid data
-        if (validReadings.isEmpty()) {
+        ProcessingData processingData = parseAndValidate(lines);
+        if (processingData.validReadings.isEmpty()) {
             System.out.println("No valid temperature data found.");
             return;
         }
 
-        // Compute statistics
-        TemperatureStatistics statistics = new TemperatureStatistics(validReadings);
+        SummaryReport report = buildReport(lines.size(), processingData);
+        writeOutputs(filename, report);
+    }
 
-        // Build summary report
-        SummaryReport report = new SummaryReport(
-                lines.size(),
-                validReadings.size(),
-                badLines.size(),
+    private List<String> readInputLines(String filename) {
+        try {
+            return fileReader.readLines(filename);
+        } catch (IOException e) {
+            System.out.println("Error: File not found.");
+            return null;
+        }
+    }
+
+    private ProcessingData parseAndValidate(List<String> lines) {
+        List<TemperatureReading> validReadings = new ArrayList<>();
+        List<String> badLines = new ArrayList<>();
+
+        for (int i = 0; i < lines.size(); i++) {
+            processLine(lines.get(i), i + 1, validReadings, badLines);
+        }
+
+        return new ProcessingData(validReadings, badLines);
+    }
+
+    private void processLine(
+            String rawLine,
+            int lineNumber,
+            List<TemperatureReading> validReadings,
+            List<String> badLines) {
+        String line = rawLine.trim();
+        if (line.isEmpty()) {
+            return;
+        }
+
+        TemperatureReading reading;
+        try {
+            reading = csvParser.parse(line);
+        } catch (ParseException e) {
+            badLines.add(formatBadLine(lineNumber, line));
+            return;
+        }
+
+        TemperatureValidator.ValidationResult validation = validator.validate(reading);
+        if (!validation.isValid()) {
+            badLines.add(formatBadLine(lineNumber, line));
+            return;
+        }
+
+        validReadings.add(reading);
+    }
+
+    private String formatBadLine(int lineNumber, String line) {
+        return "  Line " + lineNumber + ": " + line;
+    }
+
+    private SummaryReport buildReport(int totalLines, ProcessingData processingData) {
+        TemperatureStatistics statistics = new TemperatureStatistics(processingData.validReadings);
+        return new SummaryReport(
+                totalLines,
+                processingData.validReadings.size(),
+                processingData.badLines.size(),
                 statistics,
-                badLines
+                processingData.badLines
         );
+    }
 
-        // Output to console
-        String consoleOutput = consoleWriter.format(report, filename);
-        System.out.print(consoleOutput);
+    private void writeOutputs(String filename, SummaryReport report) {
+        System.out.print(consoleWriter.format(report, filename));
 
-        // Output to file
         String outName = filename + "_summary.txt";
         try (PrintWriter out = new PrintWriter(new FileWriter(outName))) {
-            String fileOutput = fileWriter.format(report, filename);
-            out.print(fileOutput);
+            out.print(fileWriter.format(report, filename));
             System.out.println("Report saved to " + outName);
         } catch (IOException e) {
             System.out.println("Error saving file: " + e.getMessage());
+        }
+    }
+
+    private static class ProcessingData {
+        private final List<TemperatureReading> validReadings;
+        private final List<String> badLines;
+
+        private ProcessingData(List<TemperatureReading> validReadings, List<String> badLines) {
+            this.validReadings = validReadings;
+            this.badLines = badLines;
         }
     }
 }
